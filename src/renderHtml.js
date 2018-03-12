@@ -5,10 +5,6 @@ var handlebars = require('handlebars')
 
 var renderCss = require('./renderCss')
 
-handlebars.registerHelper('removePeriods', function (selector) {
-	return selector.replace(/\./, '');
-});
-
 var renderHtml = function(options) {
 	var source = fs.readFileSync(options.htmlTemplate, 'utf8')
 	var template = handlebars.compile(source)
@@ -19,11 +15,17 @@ var renderHtml = function(options) {
 	var styles = renderCss(_.extend({}, options, {
 		cssFontPath: htmlFontsPath
 	}))
+	// Transform codepoints to hex strings
+	var codepoints = _.object(_.map(options.codepoints, function(codepoint, name) {
+		return [name, codepoint.toString(16)]
+	}))
+
 
 	var ctx = _.extend({
 		names: options.names,
 		fontName: options.fontName,
-		styles: styles
+		styles: styles,
+		codepoints: codepoints
 	}, options.templateOptions)
 	return template(ctx)
 }
